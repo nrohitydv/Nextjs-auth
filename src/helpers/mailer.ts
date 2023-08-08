@@ -16,7 +16,7 @@ export const sendMail = async ({ email, emailType, userId }: any) => {
     } else if (emailType === 'VERIFY') {
       await User.findByIdAndUpdate(userId, {
         verifyToken: hashedToken,
-        verifyExpirey: Date.now() + 3600000,
+        verifyTokenExpiry: Date.now() + 3600000,
       });
     }
     //transporter
@@ -25,7 +25,7 @@ export const sendMail = async ({ email, emailType, userId }: any) => {
       port: 2525,
       auth: {
         user: 'f8c169b9bf1f09',
-        pass: 'PASS',
+        pass: process.env.PASS,
       },
     });
 
