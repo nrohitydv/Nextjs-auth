@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const { token, password } = reqBody;
     const user = await User.findOne({
       forgotPasswordToken: token,
-      forgotPasswordTokenExpiry: { $gt: Date.now() },
+      forgotPasswordExpirey: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     user.password = hashedPassword;
     user.forgotPasswordToken = undefined;
-    user.forgotPasswordTokenExpiry = undefined;
+    user.forgotPasswordTokenExpirey = undefined;
     await user.save();
 
     return NextResponse.json({
