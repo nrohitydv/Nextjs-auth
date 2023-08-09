@@ -25,7 +25,7 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
       port: 2525,
       auth: {
         user: 'f8c169b9bf1f09',
-        pass: process.env.PASS,
+        pass: '6175eb1acb4681',
       },
     });
 
@@ -47,7 +47,7 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
       `,
     };
 
-    const mailResponse = await transport.sendEmail(mailOptions);
+    const mailResponse = await transport.sendMail(mailOptions);
     return mailResponse;
   } catch (error: any) {
     throw new error.message();
