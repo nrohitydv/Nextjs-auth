@@ -1,57 +1,62 @@
 'use client';
-import axios from 'axios';
-import Link from 'next/link';
-import { toast } from 'react-hot-toast';
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-export default function ProfilePage() {
+import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
+
+const ProfilePage = () => {
   const router = useRouter();
-  const [data, setData] = useState('nothing');
+  const [user, setUser] = useState<any>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const logout = async () => {
-    try {
-      await axios.get('/api/users/logout');
-      toast.success('You have been logged out');
-
-      router.push('/login');
-    } catch (error: any) {
-      console.log(error.message);
-      toast.error(error.message);
+  const getUserData = async () => {
+    setIsLoading(true);
+    const response = await axios.get('../api/users/me');
+    setIsLoading(false);
+    if (response.data.success) {
+      setUser(response.data.data);
     }
   };
 
-  //to get user details
-  const getuserDetails = async () => {
-    const res = await axios.get('/api/users/me');
-    console.log(res.data);
-    setData(res.data.data._id);
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  const logout = async () => {
+    try {
+      const response = await axios.get('../api/users/logout');
+      if (response.data.success) {
+        router.push('/login');
+      } else {
+        toast.error(response.data?.message);
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || error?.message);
+    }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2  ">
-      <h1>Profile</h1>
-      <hr />
+    <div className="flex min-h-full flex-1 flex-col justify-center items-center px-6 py-12 lg:px-8">
       <p>Profile page</p>
-      <h2 className="p-1 rounded bg-green-500 ">
-        {data === 'nothing' ? (
-          'Nothing'
-        ) : (
-          <Link href={`/profile/${data}`}>{data}</Link>
-        )}
-      </h2>
-      <hr />
-      <button
-        onClick={logout}
-        className="bg-blue-500 mt-4 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Logout
-      </button>
-      <button
-        onClick={getuserDetails}
-        className="bg-green-800 mt-4 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        GetUser Details
-      </button>
+      <Toaster />
+      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
+        <div className="flex justify-center"></div>
+        <h2 className="mt-4 text-center text-xl font-semibold text-gray-800">
+          {isLoading ? 'Loading...' : user?.username}
+        </h2>
+        <p className="mt-2 text-center text-gray-500">{user?.email}</p>
+        <div className="mt-6">
+          <button
+            onClick={logout} // Log out the user
+            className="mt-3 w-full text-center text-gray-500 font-semibold hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1"
+          >
+            Log Out
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default ProfilePage;
